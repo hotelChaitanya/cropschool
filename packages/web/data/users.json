@@ -1,0 +1,11 @@
+[
+  {
+    "id": "1",
+    "email": "parent@example.com",
+    "password": "$2b$12$/Ft/0HTsJ4LcjU5sun/fWu7.RaG.mPArGYFDc1cueLT13DO95J9du",
+    "username": "Demo Parent",
+    "role": "parent",
+    "createdAt": "2025-08-17T13:48:11.372Z",
+    "updatedAt": "2025-08-17T13:48:11.372Z"
+  }
+]

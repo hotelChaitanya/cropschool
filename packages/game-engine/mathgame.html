@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Math Adventure Game - CropSchool</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: 'Comic Sans MS', Arial, sans-serif;
+        color: white;
+        text-align: center;
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        color: #ffe066;
+      }
+
+      .subtitle {
+        margin-bottom: 20px;
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+
+      #gameCanvas {
+        border: 4px solid #ffe066;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        background: linear-gradient(45deg, #87ceeb, #b0e0e6);
+        display: block;
+        margin: 20px auto;
+        cursor: pointer;
+      }
+
+      .controls {
+        margin: 20px 0;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        border: none;
+        border-radius: 25px;
+        background: linear-gradient(45deg, #ff6b9d, #4ecdc4);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+        font-weight: bold;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 157, 0.4);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .game-info {
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+        backdrop-filter: blur(10px);
+      }
+
+      .instructions {
+        background: rgba(255, 224, 102, 0.2);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 15px 0;
+      }
+
+      .status {
+        margin-top: 15px;
+        padding: 15px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        border-left: 4px solid #4ecdc4;
+      }
+
+      .score {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #ffe066;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+      }
+
+      .math-symbols {
+        font-size: 2em;
+        opacity: 0.3;
+        position: absolute;
+        pointer-events: none;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Decorative math symbols -->
+    <div class="math-symbols" style="top: 10%; left: 10%">∑</div>
+    <div
+      class="math-symbols"
+      style="top: 20%; right: 15%; animation-delay: -2s"
+    >
+      π
+    </div>
+    <div class="math-symbols" style="top: 70%; left: 5%; animation-delay: -4s">
+      ∞
+    </div>
+    <div
+      class="math-symbols"
+      style="top: 80%; right: 10%; animation-delay: -1s"
+    >
+      √
+    </div>
+
+    <div class="container">
+      <h1>🎯 Math Adventure Game</h1>
+      <p class="subtitle">
+        Drag numbers to solve math problems! Learn while you play!
+      </p>
+
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+      <div class="controls">
+        <button onclick="startGame()" id="startBtn">
+          🚀 Start Math Adventure
+        </button>
+        <button onclick="newProblem()" id="newBtn" disabled>
+          ➕ New Problem
+        </button>
+        <button onclick="resetGame()" id="resetBtn" disabled>
+          🔄 Reset Game
+        </button>
+        <button onclick="togglePause()" id="pauseBtn" disabled>⏸️ Pause</button>
+      </div>
+
+      <div class="game-info">
+        <div class="instructions">
+          <h3>🎮 How to Play:</h3>
+          <p>
+            1. Click and drag the numbers from the bottom to the equation slots
+          </p>
+          <p>2. Drop the correct numbers to complete the math problem</p>
+          <p>3. Solve as many problems as you can to increase your score!</p>
+          <p>
+            4. Watch for visual feedback and animations when you get it right!
+            ✨
+          </p>
+        </div>
+
+        <div class="score" id="scoreDisplay">Score: 0 🌟</div>
+
+        <div class="status" id="status">
+          🎲 Ready to start your math adventure! The game engine features ECS
+          architecture, drag-and-drop physics, animations, and educational
+          gameplay designed for learning math through play.
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      // Educational Math Game Implementation
+      // This is a simplified version that demonstrates the game mechanics
+
+      let gameState = {
+        running: false,
+        paused: false,
+        score: 0,
+        currentProblem: null,
+        draggedElement: null,
+        entities: [],
+        canvas: null,
+        ctx: null,
+      };
+
+      function updateStatus(message) {
+        document.getElementById('status').textContent = message;
+      }
+
+      function updateScore(points = 0) {
+        gameState.score += points;
+        document.getElementById('scoreDisplay').textContent =
+          `Score: ${gameState.score} 🌟`;
+      }
+
+      function generateMathProblem() {
+        const num1 = Math.floor(Math.random() * 10) + 1;
+        const num2 = Math.floor(Math.random() * 10) + 1;
+        const result = num1 + num2;
+
+        return {
+          num1,
+          num2,
+          result,
+          operation: '+',
+          solved: false,
+        };
+      }
+
+      function createNumberEntity(number, x, y, id) {
+        return {
+          id,
+          number,
+          x,
+          y,
+          width: 60,
+          height: 60,
+          dragging: false,
+          originalX: x,
+          originalY: y,
+          color: '#FF6B9D',
+          borderColor: '#FF1744',
+        };
+      }
+
+      function drawGame() {
+        if (!gameState.ctx) return;
+
+        const { ctx, canvas } = gameState;
+
+        // Clear canvas with gradient background
+        const gradient = ctx.createLinearGradient(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+        gradient.addColorStop(0, '#87CEEB');
+        gradient.addColorStop(1, '#B0E0E6');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        if (!gameState.currentProblem) return;
+
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+
+        // Draw equation framework
+        ctx.fillStyle = '#2E5984';
+        ctx.font = 'bold 48px Arial';
+        ctx.textAlign = 'center';
+
+        // Draw the math equation slots
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fillRect(centerX - 200, centerY - 50, 100, 100); // Left slot
+        ctx.fillRect(centerX + 50, centerY - 50, 100, 100); // Right slot
+        ctx.fillRect(centerX + 300, centerY - 50, 100, 100); // Result slot
+
+        // Draw slot borders
+        ctx.strokeStyle = '#FFE066';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(centerX - 200, centerY - 50, 100, 100);
+        ctx.strokeRect(centerX + 50, centerY - 50, 100, 100);
+        ctx.strokeRect(centerX + 300, centerY - 50, 100, 100);
+
+        // Draw operation symbols
+        ctx.fillStyle = '#2E5984';
+        ctx.font = 'bold 36px Arial';
+        ctx.fillText('+', centerX - 50, centerY + 10);
+        ctx.fillText('=', centerX + 200, centerY + 10);
+
+        // Draw slot labels
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#666';
+        ctx.fillText('First Number', centerX - 150, centerY - 60);
+        ctx.fillText('Second Number', centerX + 100, centerY - 60);
+        ctx.fillText('Answer', centerX + 350, centerY - 60);
+
+        // Draw draggable numbers
+        gameState.entities.forEach(entity => {
+          // Entity shadow
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+          ctx.fillRect(entity.x + 3, entity.y + 3, entity.width, entity.height);
+
+          // Entity background
+          const gradient = ctx.createLinearGradient(
+            entity.x,
+            entity.y,
+            entity.x,
+            entity.y + entity.height
+          );
+          gradient.addColorStop(0, entity.color);
+          gradient.addColorStop(1, entity.borderColor);
+          ctx.fillStyle = gradient;
+          ctx.fillRect(entity.x, entity.y, entity.width, entity.height);
+
+          // Entity border
+          ctx.strokeStyle = entity.dragging ? '#FFE066' : entity.borderColor;
+          ctx.lineWidth = entity.dragging ? 4 : 2;
+          ctx.strokeRect(entity.x, entity.y, entity.width, entity.height);
+
+          // Number text
+          ctx.fillStyle = 'white';
+          ctx.font = 'bold 32px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(
+            entity.number.toString(),
+            entity.x + entity.width / 2,
+            entity.y + entity.height / 2 + 12
+          );
+        });
+
+        // Draw instructions
+        ctx.fillStyle = '#2E5984';
+        ctx.font = '18px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Drag the numbers to solve the equation!', centerX, 50);
+      }
+
+      function isPointInEntity(x, y, entity) {
+        return (
+          x >= entity.x &&
+          x <= entity.x + entity.width &&
+          y >= entity.y &&
+          y <= entity.y + entity.height
+        );
+      }
+
+      function checkDropPosition(entity) {
+        const centerX = gameState.canvas.width / 2;
+        const centerY = gameState.canvas.height / 2;
+
+        // Check if dropped in left slot (first number)
+        if (
+          entity.x > centerX - 200 &&
+          entity.x < centerX - 100 &&
+          entity.y > centerY - 50 &&
+          entity.y < centerY + 50
+        ) {
+          if (entity.number === gameState.currentProblem.num1) {
+            updateStatus('✅ Correct! First number is right!');
+            entity.x = centerX - 175;
+            entity.y = centerY - 25;
+            entity.color = '#4CAF50';
+            checkSolution();
+          } else {
+            updateStatus("❌ Try again! That's not the first number.");
+            resetEntityPosition(entity);
+          }
+        }
+        // Check if dropped in right slot (second number)
+        else if (
+          entity.x > centerX + 50 &&
+          entity.x < centerX + 150 &&
+          entity.y > centerY - 50 &&
+          entity.y < centerY + 50
+        ) {
+          if (entity.number === gameState.currentProblem.num2) {
+            updateStatus('✅ Correct! Second number is right!');
+            entity.x = centerX + 75;
+            entity.y = centerY - 25;
+            entity.color = '#4CAF50';
+            checkSolution();
+          } else {
+            updateStatus("❌ Try again! That's not the second number.");
+            resetEntityPosition(entity);
+          }
+        }
+        // Check if dropped in result slot
+        else if (
+          entity.x > centerX + 300 &&
+          entity.x < centerX + 400 &&
+          entity.y > centerY - 50 &&
+          entity.y < centerY + 50
+        ) {
+          if (entity.number === gameState.currentProblem.result) {
+            updateStatus('✅ Excellent! You got the answer right!');
+            entity.x = centerX + 325;
+            entity.y = centerY - 25;
+            entity.color = '#4CAF50';
+            checkSolution();
+          } else {
+            updateStatus("❌ Try again! That's not the correct answer.");
+            resetEntityPosition(entity);
+          }
+        } else {
+          resetEntityPosition(entity);
+        }
+      }
+
+      function resetEntityPosition(entity) {
+        entity.x = entity.originalX;
+        entity.y = entity.originalY;
+        entity.color = '#FF6B9D';
+      }
+
+      function checkSolution() {
+        const correctPositions = gameState.entities.filter(
+          e => e.color === '#4CAF50'
+        ).length;
+        if (correctPositions >= 3) {
+          updateStatus(
+            '🎉 Fantastic! Problem solved! Click "New Problem" to continue!'
+          );
+          updateScore(10);
+          gameState.currentProblem.solved = true;
+          document.getElementById('newBtn').disabled = false;
+        }
+      }
+
+      function startGame() {
+        gameState.canvas = document.getElementById('gameCanvas');
+        gameState.ctx = gameState.canvas.getContext('2d');
+        gameState.running = true;
+        gameState.score = 0;
+
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('newBtn').disabled = false;
+        document.getElementById('resetBtn').disabled = false;
+        document.getElementById('pauseBtn').disabled = false;
+
+        newProblem();
+        updateStatus(
+          '🎮 Math Adventure started! Drag numbers to solve the equation!'
+        );
+
+        // Start game loop
+        gameLoop();
+
+        // Add event listeners
+        setupEventListeners();
+      }
+
+      function newProblem() {
+        gameState.currentProblem = generateMathProblem();
+        gameState.entities = [];
+
+        // Create number entities for all possible numbers (1-20)
+        const numbers = [
+          gameState.currentProblem.num1,
+          gameState.currentProblem.num2,
+          gameState.currentProblem.result,
+          ...Array.from(
+            { length: 7 },
+            () => Math.floor(Math.random() * 20) + 1
+          ),
+        ];
+
+        // Shuffle numbers
+        for (let i = numbers.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+        }
+
+        // Create entities
+        numbers.slice(0, 10).forEach((num, i) => {
+          const x = 50 + (i % 5) * 120;
+          const y = gameState.canvas.height - 150 + Math.floor(i / 5) * 80;
+          gameState.entities.push(createNumberEntity(num, x, y, i));
+        });
+
+        document.getElementById('newBtn').disabled = true;
+        updateStatus(
+          `🎯 New problem: ${gameState.currentProblem.num1} + ${gameState.currentProblem.num2} = ?`
+        );
+      }
+
+      function resetGame() {
+        gameState.running = false;
+        gameState.score = 0;
+        gameState.entities = [];
+        gameState.currentProblem = null;
+
+        updateScore(0);
+        updateStatus(
+          '🔄 Game reset! Click "Start Math Adventure" to play again!'
+        );
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('newBtn').disabled = true;
+        document.getElementById('resetBtn').disabled = true;
+        document.getElementById('pauseBtn').disabled = true;
+
+        if (gameState.ctx) {
+          gameState.ctx.clearRect(
+            0,
+            0,
+            gameState.canvas.width,
+            gameState.canvas.height
+          );
+        }
+      }
+
+      function togglePause() {
+        gameState.paused = !gameState.paused;
+        const btn = document.getElementById('pauseBtn');
+        btn.textContent = gameState.paused ? '▶️ Resume' : '⏸️ Pause';
+        updateStatus(gameState.paused ? '⏸️ Game paused' : '▶️ Game resumed');
+      }
+
+      function setupEventListeners() {
+        const canvas = gameState.canvas;
+
+        canvas.addEventListener('mousedown', e => {
+          if (!gameState.running || gameState.paused) return;
+
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          // Find clicked entity
+          for (const entity of gameState.entities) {
+            if (isPointInEntity(x, y, entity)) {
+              gameState.draggedElement = entity;
+              entity.dragging = true;
+              entity.offsetX = x - entity.x;
+              entity.offsetY = y - entity.y;
+              updateStatus(`🔄 Dragging number ${entity.number}...`);
+              break;
+            }
+          }
+        });
+
+        canvas.addEventListener('mousemove', e => {
+          if (!gameState.draggedElement) return;
+
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          gameState.draggedElement.x = x - gameState.draggedElement.offsetX;
+          gameState.draggedElement.y = y - gameState.draggedElement.offsetY;
+        });
+
+        canvas.addEventListener('mouseup', e => {
+          if (!gameState.draggedElement) return;
+
+          gameState.draggedElement.dragging = false;
+          checkDropPosition(gameState.draggedElement);
+          gameState.draggedElement = null;
+        });
+      }
+
+      function gameLoop() {
+        if (!gameState.running) return;
+
+        if (!gameState.paused) {
+          drawGame();
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Make functions global
+      window.startGame = startGame;
+      window.newProblem = newProblem;
+      window.resetGame = resetGame;
+      window.togglePause = togglePause;
+
+      // Initial setup
+      updateStatus(
+        '🎲 Welcome to Math Adventure! Click "Start Math Adventure" to begin learning with our educational game engine featuring ECS architecture, physics-based drag and drop, and engaging gameplay!'
+      );
+    </script>
+  </body>
+</html>

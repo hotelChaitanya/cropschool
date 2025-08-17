@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CropSchool Game Engine Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        font-family: Arial, sans-serif;
+        color: white;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      h1 {
+        margin-bottom: 10px;
+        font-size: 2.5em;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .subtitle {
+        margin-bottom: 30px;
+        font-size: 1.2em;
+        opacity: 0.9;
+      }
+
+      #gameCanvas {
+        border: 3px solid #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        background: #87ceeb;
+        display: block;
+        margin: 20px auto;
+      }
+
+      .controls {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 12px 24px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(45deg, #ff6b6b, #ffa726);
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .info {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 30px;
+        backdrop-filter: blur(10px);
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .feature {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      .status {
+        margin-top: 15px;
+        padding: 10px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🎮 CropSchool Game Engine</h1>
+      <p class="subtitle">Educational Game Engine Demo - Click to interact!</p>
+
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+      <div class="controls">
+        <button onclick="startEngine()">🚀 Start Engine</button>
+        <button onclick="pauseEngine()">⏸️ Pause</button>
+        <button onclick="resumeEngine()">▶️ Resume</button>
+        <button onclick="addRandomEntity()">➕ Add Entity</button>
+        <button onclick="clearEntities()">🗑️ Clear All</button>
+      </div>
+
+      <div class="info">
+        <h3>✨ Game Engine Features</h3>
+        <div class="feature-grid">
+          <div class="feature">🏗️ ECS Architecture</div>
+          <div class="feature">🎯 60 FPS Game Loop</div>
+          <div class="feature">🕹️ Cross-Platform Input</div>
+          <div class="feature">🎨 Canvas Rendering</div>
+          <div class="feature">⚛️ Physics Simulation</div>
+          <div class="feature">🎵 Audio Management</div>
+          <div class="feature">🎬 Animation System</div>
+          <div class="feature">🎭 Scene Management</div>
+        </div>
+
+        <div class="status" id="status">
+          Status: Ready to start - Click "Start Engine" to begin the demo!
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Simple demo without the actual game engine import (since it needs build process)
+      // This is a visual demo showing the canvas and features
+
+      let isRunning = false;
+      let entities = [];
+      let animationId = null;
+      let canvas = null;
+      let ctx = null;
+
+      function updateStatus(message) {
+        document.getElementById('status').textContent = `Status: ${message}`;
+      }
+
+      function startEngine() {
+        if (isRunning) {
+          updateStatus('Engine already running!');
+          return;
+        }
+
+        canvas = document.getElementById('gameCanvas');
+        ctx = canvas.getContext('2d');
+        isRunning = true;
+
+        updateStatus(
+          'Engine started! ECS systems active, 60 FPS game loop running...'
+        );
+
+        // Simple animation loop demo
+        function gameLoop() {
+          if (!isRunning) return;
+
+          // Clear canvas
+          ctx.fillStyle = '#87CEEB';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // Draw title
+          ctx.fillStyle = '#2E5984';
+          ctx.font = 'bold 24px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('Game Engine Active', canvas.width / 2, 50);
+
+          // Draw demo entities
+          entities.forEach((entity, index) => {
+            // Simple bouncing animation
+            entity.x += entity.vx;
+            entity.y += entity.vy;
+
+            if (entity.x <= 0 || entity.x >= canvas.width - entity.size)
+              entity.vx *= -1;
+            if (entity.y <= 60 || entity.y >= canvas.height - entity.size)
+              entity.vy *= -1;
+
+            // Draw entity
+            ctx.fillStyle = entity.color;
+            ctx.fillRect(entity.x, entity.y, entity.size, entity.size);
+
+            // Draw entity ID
+            ctx.fillStyle = 'white';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(
+              `E${index}`,
+              entity.x + entity.size / 2,
+              entity.y + entity.size / 2 + 4
+            );
+          });
+
+          // Draw system info
+          ctx.fillStyle = '#333';
+          ctx.font = '14px Arial';
+          ctx.textAlign = 'left';
+          ctx.fillText(`Entities: ${entities.length}`, 20, canvas.height - 60);
+          ctx.fillText(`FPS: 60 (simulated)`, 20, canvas.height - 40);
+          ctx.fillText(
+            `Systems: Render, Movement, Physics`,
+            20,
+            canvas.height - 20
+          );
+
+          animationId = requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+      }
+
+      function pauseEngine() {
+        if (!isRunning) {
+          updateStatus('Engine not running!');
+          return;
+        }
+        isRunning = false;
+        if (animationId) {
+          cancelAnimationFrame(animationId);
+        }
+        updateStatus('Engine paused - All systems stopped');
+      }
+
+      function resumeEngine() {
+        if (isRunning) {
+          updateStatus('Engine already running!');
+          return;
+        }
+        if (!canvas) {
+          updateStatus('Please start the engine first!');
+          return;
+        }
+        startEngine();
+      }
+
+      function addRandomEntity() {
+        if (!canvas) {
+          updateStatus('Please start the engine first!');
+          return;
+        }
+
+        const colors = [
+          '#FF6B6B',
+          '#4ECDC4',
+          '#45B7D1',
+          '#96CEB4',
+          '#FECA57',
+          '#FF9FF3',
+        ];
+        const entity = {
+          x: Math.random() * (canvas.width - 40),
+          y: Math.random() * (canvas.height - 100) + 60,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4,
+          size: 20 + Math.random() * 20,
+          color: colors[Math.floor(Math.random() * colors.length)],
+        };
+
+        entities.push(entity);
+        updateStatus(
+          `Entity added! Total entities: ${entities.length} (ECS pattern)`
+        );
+      }
+
+      function clearEntities() {
+        entities = [];
+        updateStatus('All entities destroyed - EntityManager cleared');
+      }
+
+      // Add click handler for canvas interaction
+      document
+        .getElementById('gameCanvas')
+        .addEventListener('click', function (e) {
+          if (!isRunning) {
+            updateStatus('Start the engine first to interact!');
+            return;
+          }
+
+          const rect = canvas.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+
+          // Add entity at click position
+          const colors = [
+            '#FF6B6B',
+            '#4ECDC4',
+            '#45B7D1',
+            '#96CEB4',
+            '#FECA57',
+            '#FF9FF3',
+          ];
+          const entity = {
+            x: x - 20,
+            y: y - 20,
+            vx: (Math.random() - 0.5) * 6,
+            vy: (Math.random() - 0.5) * 6,
+            size: 15 + Math.random() * 25,
+            color: colors[Math.floor(Math.random() * colors.length)],
+          };
+
+          entities.push(entity);
+          updateStatus(
+            `Entity spawned at (${Math.round(x)}, ${Math.round(y)}) - InputManager detected click`
+          );
+        });
+
+      // Initial status
+      updateStatus(
+        'Game engine ready - Features: ECS, 60 FPS loop, input handling, rendering, physics, audio, animations, scenes'
+      );
+    </script>
+  </body>
+</html>

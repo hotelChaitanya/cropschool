@@ -1,0 +1,31 @@
+<svg width="800" height="800" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Open Book -->
+  <path d="M150 350 Q400 300 650 350 L650 480 Q400 430 150 480 Z" fill="#D4A574" stroke="#8B4513" stroke-width="8"/>
+  <path d="M150 350 Q400 320 650 350 L650 460 Q400 440 150 460 Z" fill="#F4C2A1"/>
+  
+  <!-- Book Pages -->
+  <path d="M180 370 L620 370 L620 450 L180 450 Z" fill="#FFF8DC" stroke="#DDD" stroke-width="2"/>
+  <line x1="400" y1="370" x2="400" y2="450" stroke="#DDD" stroke-width="2"/>
+  
+  <!-- Plant Stem -->
+  <path d="M400 450 Q400 380 400 280" stroke="#2D5016" stroke-width="12" fill="none"/>
+  
+  <!-- Large Leaf (Right) -->
+  <path d="M400 280 Q450 250 480 200 Q490 180 485 160 Q475 140 450 150 Q420 160 400 180 Q400 230 400 280" 
+        fill="#7CB342" stroke="#2D5016" stroke-width="6"/>
+  <path d="M420 240 Q440 220 460 200" stroke="#2D5016" stroke-width="2" fill="none"/>
+  
+  <!-- Large Leaf (Left) -->
+  <path d="M400 280 Q350 250 320 200 Q310 180 315 160 Q325 140 350 150 Q380 160 400 180 Q400 230 400 280" 
+        fill="#8BC34A" stroke="#2D5016" stroke-width="6"/>
+  <path d="M380 240 Q360 220 340 200" stroke="#2D5016" stroke-width="2" fill="none"/>
+  
+  <!-- Small Leaf -->
+  <path d="M400 320 Q430 310 450 290 Q455 285 452 280 Q445 275 435 280 Q415 285 400 300 Q400 310 400 320" 
+        fill="#9CCC65" stroke="#2D5016" stroke-width="4"/>
+  <path d="M410 305 Q425 300 440 290" stroke="#2D5016" stroke-width="1.5" fill="none"/>
+  
+  <!-- CropSchool Text -->
+  <text x="400" y="600" font-family="Arial, sans-serif" font-size="80" font-weight="bold" 
+        text-anchor="middle" fill="#2D5016">CropSchool</text>
+</svg>

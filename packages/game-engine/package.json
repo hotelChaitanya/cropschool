@@ -1,0 +1,47 @@
+{
+  "name": "@cropschool/game-engine",
+  "version": "1.0.0",
+  "description": "Educational game engine built with React and Canvas for CropSchool",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "type-check": "tsc --noEmit",
+    "example": "npm run build && node -r esbuild-register examples/MathGame.ts"
+  },
+  "keywords": [
+    "game-engine",
+    "educational-games",
+    "canvas",
+    "react",
+    "typescript",
+    "ecs",
+    "physics",
+    "animation"
+  ],
+  "author": "CropSchool Team",
+  "license": "MIT",
+  "dependencies": {
+    "@cropschool/shared": "1.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "rollup": "^4.0.0",
+    "rollup-plugin-dts": "^6.0.0",
+    "tslib": "^2.6.0",
+    "esbuild-register": "^3.5.0"
+  },
+  "files": [
+    "dist",
+    "examples"
+  ],
+  "sideEffects": false
+}

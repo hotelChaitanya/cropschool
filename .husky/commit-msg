@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Check for conventional commit format
+commit_regex='^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .{1,50}'
+
+if ! grep -qE "$commit_regex" "$1"; then
+    echo "❌ Invalid commit message format!"
+    echo "📝 Please use conventional commit format:"
+    echo "   feat: add new feature"
+    echo "   fix: bug fix"
+    echo "   docs: documentation changes"
+    echo "   style: formatting changes"
+    echo "   refactor: code refactoring"
+    echo "   test: add tests"
+    echo "   chore: maintenance tasks"
+    echo ""
+    echo "Examples:"
+    echo "  feat(web): add farm plotting system"
+    echo "  fix(mobile): resolve navigation issue"
+    echo "  docs: update installation guide"
+    exit 1
+fi
